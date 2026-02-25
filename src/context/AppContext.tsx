@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, updateDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../utils/firebase';
 import type { User, Post, Match } from '../types';
 
@@ -45,12 +45,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setMatches(snapshot.docs.map(doc => doc.data() as Match));
         });
 
+        // Listen for Firebase auth state changes to auto-login returning users
+        const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser) {
+                // User is signed in to Firebase.
+                // We need to wait for `users` array to populate if it hasn't already.
+                // The actual setting of `currentUser` based on this is handled in the effect below.
+            } else {
+                // User is signed out.
+                // If we relied purely on Firebase we'd clear here, but we also support Google/Legacy
+                // without forced Firebase link in this specific app's context based on the current implementation.
+                // However, if they explicitly logged out of Firebase, we should probably clear local state too.
+                // We leave it as is to not break non-Firebase logins if any exist.
+            }
+        });
+
         return () => {
             unsubscribeUsers();
             unsubscribePosts();
             unsubscribeMatches();
+            unsubscribeAuth();
         };
     }, []);
+
+    // Effect to auto-login Firebase users once the users list loads
+    useEffect(() => {
+        const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser && users.length > 0) {
+                // Only auto-login if they aren't already logged in
+                if (!currentUser) {
+                    // Try to find the user in our DB by email or ID
+                    const dbUser = users.find(u => u.id === firebaseUser.uid || u.email === firebaseUser.email);
+                    if (dbUser) {
+                        setCurrentUser(dbUser);
+                    }
+                }
+            }
+        });
+
+        return () => unsubscribeAuth();
+    }, [users, currentUser]);
 
     useEffect(() => {
         if (currentUser) {
