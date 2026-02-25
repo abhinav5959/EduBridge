@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
     const myAcceptedMatches = matches.filter(m => (m.learnerId === currentUser.id || m.mentorId === currentUser.id) && m.status === 'accepted');
 
     // Posts to show in feed
-    const feedPosts = posts.filter(p => p.status === 'open' && p.authorId !== currentUser.id);
+    const feedPosts = posts.filter(p => p.status === 'open'); // Show all open posts, including user's own
     const myPosts = posts.filter(p => p.authorId === currentUser.id);
 
     const handleOfferHelp = (postId: string) => {
@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
 
                                     <p className="text-muted" style={{ marginBottom: '1.5rem' }}>{post.description}</p>
 
-                                    {post.type === 'doubt' && (
+                                    {post.type === 'doubt' && post.authorId !== currentUser.id && (
                                         <button
                                             onClick={() => handleOfferHelp(post.id)}
                                             className="btn btn-primary"
@@ -135,7 +135,7 @@ const Dashboard: React.FC = () => {
                                             Offer Help <ArrowRight size={16} />
                                         </button>
                                     )}
-                                    {post.type === 'offer' && (
+                                    {post.type === 'offer' && post.authorId !== currentUser.id && (
                                         <button
                                             onClick={() => handleOfferHelp(post.id)} // for simplicity, learner requesting
                                             className="btn btn-secondary"
