@@ -64,11 +64,26 @@ const Auth: React.FC = () => {
             }
 
             // Basic college email validation (e.g., must end in .edu or .ac.in or similar)
-            // Adjust this regex as needed for your specific college's domain format.
             if (!email.includes('.edu') && !email.includes('.ac.')) {
-                // Warning only, or strict block depending on needs. Let's block for now as requested.
                 setError('Please use a valid college email address (e.g. ending in .edu or .ac.in)');
                 return;
+            }
+
+            // Registration ID format validation
+            if (userType === 'student') {
+                // Example format: 21BCE1234 (2 digits, 3 letters, 4 digits)
+                const studentIdRegex = /^\d{2}[A-Za-z]{3}\d{4}$/;
+                if (!studentIdRegex.test(collegeId.trim())) {
+                    setError('Invalid Student ID format. Example: 21BCE1234');
+                    return;
+                }
+            } else if (userType === 'teacher') {
+                // Example format: EMP1234 (EMP followed by numbers)
+                const teacherIdRegex = /^EMP\d{3,}$/i;
+                if (!teacherIdRegex.test(collegeId.trim())) {
+                    setError('Invalid Employee ID format. Example: EMP1234');
+                    return;
+                }
             }
 
             const subjects = subjectInput.split(',').map(s => s.trim()).filter(s => s);
