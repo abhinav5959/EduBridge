@@ -1,11 +1,13 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { ArrowRight, UserCircle, Clock, CheckCircle, Search } from 'lucide-react';
+import { ArrowRight, UserCircle, Clock, CheckCircle, Search, MessageCircle } from 'lucide-react';
+import ChatWindow from '../components/ChatWindow';
 
 const Dashboard: React.FC = () => {
     const { currentUser, posts, users, matches, createMatch, acceptMatch } = useAppContext();
     const navigate = useNavigate();
+    const [activeChatMatchId, setActiveChatMatchId] = React.useState<string | null>(null);
 
     if (!currentUser) {
         navigate('/auth');
@@ -14,6 +16,9 @@ const Dashboard: React.FC = () => {
 
     // Pending matches for this user (if learner, someone offered help)
     const myPendingMatches = matches.filter(m => m.learnerId === currentUser.id && m.status === 'pending');
+    // Active accepted matches for chat
+    const myAcceptedMatches = matches.filter(m => (m.learnerId === currentUser.id || m.mentorId === currentUser.id) && m.status === 'accepted');
+
     // Posts to show in feed
     const feedPosts = posts.filter(p => p.status === 'open' && p.authorId !== currentUser.id);
     const myPosts = posts.filter(p => p.authorId === currentUser.id);
@@ -146,9 +151,42 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 <div>
-                    <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem' }}>My Activity</h2>
+                    <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem' }}>Active Mentorships</h2>
+                    <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
+                        {myAcceptedMatches.length === 0 ? (
+                            <p className="text-muted" style={{ fontSize: '0.9rem' }}>No active mentorships.</p>
+                        ) : (
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {myAcceptedMatches.map(match => {
+                                    const post = posts.find(p => p.id === match.postId);
+                                    const isLearner = match.learnerId === currentUser.id;
+                                    const otherUserId = isLearner ? match.mentorId : match.learnerId;
+                                    const otherUser = users.find(u => u.id === otherUserId);
+
+                                    return (
+                                        <li key={match.id} style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+                                            <div style={{ fontWeight: 500, fontSize: '0.95rem', marginBottom: '0.2rem' }}>
+                                                {post?.title || 'Unknown Post'}
+                                            </div>
+                                            <div className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                                                With: {otherUser?.name || 'Unknown User'} ({isLearner ? 'Mentor' : 'Student'})
+                                            </div>
+                                            <button
+                                                onClick={() => setActiveChatMatchId(match.id)}
+                                                className="btn btn-secondary"
+                                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                                            >
+                                                <MessageCircle size={14} /> Open Chat
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                    </div>
+
+                    <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem' }}>My Posts</h2>
                     <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>My Posts</h3>
                         {myPosts.length === 0 ? (
                             <p className="text-muted" style={{ fontSize: '0.9rem' }}>You haven't created any posts yet.</p>
                         ) : (
@@ -167,6 +205,11 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Chat Window Overlay */}
+            {activeChatMatchId && (
+                <ChatWindow matchId={activeChatMatchId} onClose={() => setActiveChatMatchId(null)} />
+            )}
         </div>
     );
 };

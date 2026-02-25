@@ -30,3 +30,14 @@ export interface Match {
   status: 'pending' | 'accepted' | 'completed';
   scheduledTime?: string;
 }
+
+export interface Message {
+  id: string;
+  matchId: string;
+  senderId: string;
+  text: string;
+  timestamp: number;
+  fileUrl?: string; // e.g. from Firebase Storage
+  fileName?: string;
+  fileType?: string;
+}

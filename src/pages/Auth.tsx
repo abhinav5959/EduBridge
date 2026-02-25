@@ -28,9 +28,10 @@ const Auth: React.FC = () => {
         }
     }, [currentUser, navigate]);
 
-    const handleGoogleSuccess = (credentialResponse: any) => {
+    const handleGoogleSuccess = (credentialResponse: unknown) => {
         try {
-            const decoded: any = jwtDecode(credentialResponse.credential);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const decoded: any = jwtDecode((credentialResponse as any).credential);
             const result = loginWithGoogle(decoded.email, decoded.name, decoded.picture);
 
             if (result.isNewUser) {
@@ -62,8 +63,8 @@ const Auth: React.FC = () => {
                 } else {
                     navigate('/dashboard');
                 }
-            } catch (err: any) {
-                setError(err.message || 'Login failed.');
+            } catch (err: unknown) {
+                setError((err as Error).message || 'Login failed.');
             }
         } else {
             if (!name || !email || !collegeId || !collegeName || (!isLogin && !subjectInput) || (!isGoogleSignIn && !password)) {
@@ -93,13 +94,14 @@ const Auth: React.FC = () => {
                     rating: 5.0 // Default rating for everyone since they can all mentor
                 }, isGoogleSignIn ? undefined : password);
                 navigate('/dashboard');
-            } catch (err: any) {
-                if (err.code === 'auth/email-already-in-use') {
+            } catch (err: unknown) {
+                const errorObj = err as { code?: string, message?: string };
+                if (errorObj.code === 'auth/email-already-in-use') {
                     setError('Email is already in use. Please sign in.');
-                } else if (err.code === 'auth/weak-password') {
+                } else if (errorObj.code === 'auth/weak-password') {
                     setError('Password is too weak. Please use at least 6 characters.');
                 } else {
-                    setError(err.message || 'Registration failed.');
+                    setError(errorObj.message || 'Registration failed.');
                 }
             }
         }

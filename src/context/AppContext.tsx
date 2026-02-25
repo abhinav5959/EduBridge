@@ -59,6 +59,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             // Re-sync current user from live db data if it updates
             const dbUser = users.find(u => u.id === currentUser.id);
             if (dbUser && JSON.stringify(dbUser) !== JSON.stringify(currentUser)) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setCurrentUser(dbUser);
             }
         } else {
@@ -116,7 +117,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const loginWithGoogle = (email: string, _name: string, picture: string) => {
-        let user = users.find(u => u.email === email);
+        const user = users.find(u => u.email === email);
         if (!user) {
             // User does not exist, return flag so Auth.tsx can prompt for College ID
             return { isNewUser: true };
@@ -221,6 +222,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => {
     const context = useContext(AppContext);
     if (context === undefined) {
