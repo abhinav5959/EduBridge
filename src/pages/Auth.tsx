@@ -12,6 +12,7 @@ const Auth: React.FC = () => {
     const [isLogin, setIsLogin] = useState(params.get('tab') !== 'register');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [collegeId, setCollegeId] = useState('');
     const [role, setRole] = useState<'learner' | 'mentor'>('learner');
     const [subjectInput, setSubjectInput] = useState('');
 
@@ -46,16 +47,26 @@ const Auth: React.FC = () => {
                 navigate('/dashboard');
             }
         } else {
-            if (!name || !email || !subjectInput) {
-                setError('Please fill in all fields.');
+            if (!name || !email || !collegeId || (!isLogin && !subjectInput)) {
+                setError('Please fill in all fields including your College ID.');
                 return;
             }
+
+            // Basic college email validation (e.g., must end in .edu or .ac.in or similar)
+            // Adjust this regex as needed for your specific college's domain format.
+            if (!email.includes('.edu') && !email.includes('.ac.')) {
+                // Warning only, or strict block depending on needs. Let's block for now as requested.
+                setError('Please use a valid college email address (e.g. ending in .edu or .ac.in)');
+                return;
+            }
+
             const subjects = subjectInput.split(',').map(s => s.trim()).filter(s => s);
             register({
                 name,
                 email,
                 role,
                 subjects,
+                collegeId,
                 rating: role === 'mentor' ? 5.0 : undefined
             });
             navigate('/dashboard');
@@ -105,7 +116,7 @@ const Auth: React.FC = () => {
                     )}
 
                     <div className="input-group">
-                        <label>Email Address</label>
+                        <label>College Email Address</label>
                         <input
                             type="email"
                             className="input-field"
@@ -115,6 +126,20 @@ const Auth: React.FC = () => {
                             required
                         />
                     </div>
+
+                    {!isLogin && (
+                        <div className="input-group">
+                            <label>College ID Number</label>
+                            <input
+                                type="text"
+                                className="input-field"
+                                placeholder="e.g. 21BCE1234"
+                                value={collegeId}
+                                onChange={e => setCollegeId(e.target.value)}
+                                required
+                            />
+                        </div>
+                    )}
 
                     {!isLogin && (
                         <>

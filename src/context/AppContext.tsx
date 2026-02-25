@@ -77,7 +77,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const register = (userData: Omit<User, 'id'>) => {
-        const newUser = { ...userData, id: Date.now().toString() };
+        const newUser: User = { ...userData, id: Date.now().toString() };
         setUsers([...users, newUser]);
         setCurrentUser(newUser);
     };

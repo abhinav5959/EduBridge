@@ -6,6 +6,7 @@ export interface User {
   subjects: string[];
   rating?: number;
   profilePic?: string;
+  collegeId?: string;
 }
 
 export interface Post {
