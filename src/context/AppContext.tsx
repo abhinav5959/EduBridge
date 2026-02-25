@@ -18,8 +18,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const initialUsers: User[] = [
-    { id: '1', name: 'Alice', email: 'alice@edu.com', role: 'learner', subjects: ['Math'] },
-    { id: '2', name: 'Bob', email: 'bob@edu.com', role: 'mentor', subjects: ['Math', 'Physics'], rating: 4.8 }
+    { id: '1', name: 'Alice', email: 'alice@edu.com', role: 'user', userType: 'student', subjects: ['Math'] },
+    { id: '2', name: 'Bob', email: 'bob@edu.com', role: 'user', userType: 'teacher', subjects: ['Math', 'Physics'], rating: 4.8 }
 ];
 
 const initialPosts: Post[] = [
