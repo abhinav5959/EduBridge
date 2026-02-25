@@ -78,7 +78,8 @@ const Auth: React.FC = () => {
 
             const subjects = subjectInput.split(',').map(s => s.trim()).filter(s => s);
             try {
-                await register({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const newUserData: any = {
                     name,
                     email,
                     role: 'user', // Default role since everyone is a mentor/learner now
@@ -86,9 +87,14 @@ const Auth: React.FC = () => {
                     subjects,
                     collegeId,
                     collegeName,
-                    profilePic: googleProfilePic,
                     rating: 5.0 // Default rating for everyone since they can all mentor
-                }, isGoogleSignIn ? undefined : password);
+                };
+
+                if (googleProfilePic) {
+                    newUserData.profilePic = googleProfilePic;
+                }
+
+                await register(newUserData, isGoogleSignIn ? undefined : password);
                 navigate('/dashboard');
             } catch (err: unknown) {
                 const errorObj = err as { code?: string, message?: string };
