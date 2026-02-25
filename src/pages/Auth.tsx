@@ -15,6 +15,7 @@ const Auth: React.FC = () => {
     const [collegeId, setCollegeId] = useState('');
     const [role, setRole] = useState<'learner' | 'mentor'>('learner');
     const [subjectInput, setSubjectInput] = useState('');
+    const [googleProfilePic, setGoogleProfilePic] = useState<string | undefined>(undefined);
 
     const [error, setError] = useState('');
 
@@ -27,8 +28,18 @@ const Auth: React.FC = () => {
     const handleGoogleSuccess = (credentialResponse: any) => {
         try {
             const decoded: any = jwtDecode(credentialResponse.credential);
-            loginWithGoogle(decoded.email, decoded.name, decoded.picture);
-            navigate('/dashboard');
+            const result = loginWithGoogle(decoded.email, decoded.name, decoded.picture);
+
+            if (result.isNewUser) {
+                // Pre-fill the form and switch to registration
+                setEmail(decoded.email);
+                setName(decoded.name);
+                setGoogleProfilePic(decoded.picture);
+                setIsLogin(false);
+                setError('Please complete your profile to finish signing up with Google.');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             console.error('Error decoding Google JWT', err);
             setError('Google Login failed. Please try again.');
@@ -67,6 +78,7 @@ const Auth: React.FC = () => {
                 role,
                 subjects,
                 collegeId,
+                profilePic: googleProfilePic,
                 rating: role === 'mentor' ? 5.0 : undefined
             });
             navigate('/dashboard');

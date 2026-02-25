@@ -12,7 +12,7 @@ interface AppContextType {
     createPost: (post: Omit<Post, 'id' | 'createdAt' | 'status'>) => void;
     createMatch: (postId: string, mentorId: string) => void;
     acceptMatch: (matchId: string) => void;
-    loginWithGoogle: (email: string, name: string, picture: string) => void;
+    loginWithGoogle: (email: string, name: string, picture: string) => { isNewUser: boolean, user?: User };
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -86,25 +86,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCurrentUser(null);
     };
 
-    const loginWithGoogle = (email: string, name: string, picture: string) => {
+    const loginWithGoogle = (email: string, _name: string, picture: string) => {
         let user = users.find(u => u.email === email);
         if (!user) {
-            user = {
-                id: Date.now().toString(),
-                name,
-                email,
-                role: 'learner', // Default role for Google signups
-                subjects: [],
-                profilePic: picture
-            };
-            setUsers([...users, user]);
-        } else if (picture && !user.profilePic) {
+            // User does not exist, return flag so Auth.tsx can prompt for College ID
+            return { isNewUser: true };
+        }
+
+        if (picture && !user.profilePic) {
             // Update profile pic if it was missing
             const updatedUsers = users.map(u => u.id === user?.id ? { ...u, profilePic: picture } : u);
             setUsers(updatedUsers);
             user = { ...user, profilePic: picture };
         }
         setCurrentUser(user);
+        return { isNewUser: false, user };
     };
 
     const createPost = (postData: Omit<Post, 'id' | 'createdAt' | 'status'>) => {
