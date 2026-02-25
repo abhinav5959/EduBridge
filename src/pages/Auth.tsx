@@ -13,6 +13,7 @@ const Auth: React.FC = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [collegeId, setCollegeId] = useState('');
+    const [userType, setUserType] = useState<'teacher' | 'student'>('student');
     const [subjectInput, setSubjectInput] = useState('');
     const [googleProfilePic, setGoogleProfilePic] = useState<string | undefined>(undefined);
 
@@ -75,6 +76,7 @@ const Auth: React.FC = () => {
                 name,
                 email,
                 role: 'user', // Default role since everyone is a mentor/learner now
+                userType,
                 subjects,
                 collegeId,
                 profilePic: googleProfilePic,
@@ -139,17 +141,43 @@ const Auth: React.FC = () => {
                     </div>
 
                     {!isLogin && (
-                        <div className="input-group">
-                            <label>College ID Number</label>
-                            <input
-                                type="text"
-                                className="input-field"
-                                placeholder="e.g. 21BCE1234"
-                                value={collegeId}
-                                onChange={e => setCollegeId(e.target.value)}
-                                required
-                            />
-                        </div>
+                        <>
+                            <div className="input-group">
+                                <label>College ID Number {userType === 'teacher' && '(or Employee ID)'}</label>
+                                <input
+                                    type="text"
+                                    className="input-field"
+                                    placeholder={userType === 'teacher' ? "e.g. EMP1234" : "e.g. 21BCE1234"}
+                                    value={collegeId}
+                                    onChange={e => setCollegeId(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="input-group">
+                                <label>I am a...</label>
+                                <div className="flex gap-4" style={{ marginTop: '0.5rem' }}>
+                                    <label className="flex items-center gap-2" style={{ cursor: 'pointer', flex: 1, padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', background: userType === 'student' ? 'rgba(99, 102, 241, 0.2)' : 'transparent', transition: 'var(--transition-fast)' }}>
+                                        <input
+                                            type="radio"
+                                            checked={userType === 'student'}
+                                            onChange={() => setUserType('student')}
+                                            style={{ accentColor: 'var(--color-primary)' }}
+                                        />
+                                        Student
+                                    </label>
+                                    <label className="flex items-center gap-2" style={{ cursor: 'pointer', flex: 1, padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', background: userType === 'teacher' ? 'rgba(99, 102, 241, 0.2)' : 'transparent', transition: 'var(--transition-fast)' }}>
+                                        <input
+                                            type="radio"
+                                            checked={userType === 'teacher'}
+                                            onChange={() => setUserType('teacher')}
+                                            style={{ accentColor: 'var(--color-primary)' }}
+                                        />
+                                        Teacher
+                                    </label>
+                                </div>
+                            </div>
+                        </>
                     )}
 
                     {!isLogin && (

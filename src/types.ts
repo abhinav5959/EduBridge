@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   role: 'user' | 'learner' | 'mentor';
+  userType: 'teacher' | 'student';
   subjects: string[];
   rating?: number;
   profilePic?: string;

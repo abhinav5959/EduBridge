@@ -26,7 +26,9 @@ const Profile: React.FC = () => {
                 <div>
                     <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{currentUser.name}</h1>
                     <div className="flex gap-4 items-center">
-                        <span className="badge badge-primary">EduBridge Member</span>
+                        <span className="badge badge-primary">
+                            {(currentUser.userType || 'student').toUpperCase()}
+                        </span>
                         {currentUser.rating && (
                             <span className="flex items-center text-gradient" style={{ fontWeight: 600, gap: '4px' }}>
                                 <Star size={18} fill="currentColor" /> {currentUser.rating} Rating

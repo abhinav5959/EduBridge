@@ -50,7 +50,10 @@ const Dashboard: React.FC = () => {
                                 <div key={match.id} className="glass-panel" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-success, #10b981)' }}>
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>{mentor?.name} offered help</h3>
+                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>
+                                                {mentor?.name} offered help
+                                                {mentor?.userType === 'teacher' && <span className="badge badge-primary" style={{ marginLeft: '8px', fontSize: '0.7rem' }}>TEACHER</span>}
+                                            </h3>
                                             <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>Regarding your doubt: "{post?.title}"</p>
 
                                             {mentor?.rating && (
@@ -94,8 +97,13 @@ const Dashboard: React.FC = () => {
                                                 <UserCircle size={24} color="var(--text-muted)" />
                                             </div>
                                             <div>
-                                                <span style={{ fontWeight: 600, display: 'block' }}>{getAuthorName(post.authorId)}</span>
+                                                <span style={{ fontWeight: 600, display: 'block' }}>
+                                                    {getAuthorName(post.authorId)}
+                                                </span>
                                                 <span className="text-muted" style={{ fontSize: '0.8rem' }}>
+                                                    <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', fontSize: '0.65rem', marginRight: '6px', padding: '0.2rem 0.5rem' }}>
+                                                        {users.find(u => u.id === post.authorId)?.userType === 'teacher' ? 'TEACHER' : 'STUDENT'}
+                                                    </span>
                                                     <Clock size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
                                                     {new Date(post.createdAt).toLocaleDateString()}
                                                 </span>
