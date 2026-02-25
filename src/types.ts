@@ -8,6 +8,7 @@ export interface User {
   rating?: number;
   profilePic?: string;
   collegeId?: string;
+  collegeName?: string;
 }
 
 export interface Post {

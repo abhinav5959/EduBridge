@@ -13,6 +13,7 @@ const Auth: React.FC = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [collegeId, setCollegeId] = useState('');
+    const [collegeName, setCollegeName] = useState('');
     const [userType, setUserType] = useState<'teacher' | 'student'>('student');
     const [subjectInput, setSubjectInput] = useState('');
     const [googleProfilePic, setGoogleProfilePic] = useState<string | undefined>(undefined);
@@ -58,8 +59,8 @@ const Auth: React.FC = () => {
                 navigate('/dashboard');
             }
         } else {
-            if (!name || !email || !collegeId || (!isLogin && !subjectInput)) {
-                setError('Please fill in all fields including your College ID.');
+            if (!name || !email || !collegeId || !collegeName || (!isLogin && !subjectInput)) {
+                setError('Please fill in all fields including your College ID and College Name.');
                 return;
             }
 
@@ -79,6 +80,7 @@ const Auth: React.FC = () => {
                 userType,
                 subjects,
                 collegeId,
+                collegeName,
                 profilePic: googleProfilePic,
                 rating: 5.0 // Default rating for everyone since they can all mentor
             });
@@ -142,6 +144,18 @@ const Auth: React.FC = () => {
 
                     {!isLogin && (
                         <>
+                            <div className="input-group">
+                                <label>College / University Name</label>
+                                <input
+                                    type="text"
+                                    className="input-field"
+                                    placeholder="e.g. Stanford University"
+                                    value={collegeName}
+                                    onChange={e => setCollegeName(e.target.value)}
+                                    required
+                                />
+                            </div>
+
                             <div className="input-group">
                                 <label>College ID Number {userType === 'teacher' && '(or Employee ID)'}</label>
                                 <input
