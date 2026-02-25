@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { ArrowRight, UserCircle, Clock, CheckCircle, Search } from 'lucide-react';
-import type { Post } from '../types';
 
 const Dashboard: React.FC = () => {
     const { currentUser, posts, users, matches, createMatch, acceptMatch } = useAppContext();
