@@ -72,11 +72,7 @@ const Auth: React.FC = () => {
                 return;
             }
 
-            // Basic college email validation (e.g., must end in .edu or .ac.in or similar)
-            if (!email.includes('.edu') && !email.includes('.ac.')) {
-                setError('Please use a valid college email address (e.g. ending in .edu or .ac.in)');
-                return;
-            }
+
 
             // Registration ID format validation removed as per request
 
@@ -150,11 +146,11 @@ const Auth: React.FC = () => {
                     )}
 
                     <div className="input-group">
-                        <label>College Email Address</label>
+                        <label>Email Address</label>
                         <input
                             type="email"
                             className="input-field"
-                            placeholder="you@university.edu"
+                            placeholder="you@example.com"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             required
