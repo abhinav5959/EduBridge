@@ -113,7 +113,7 @@ const Dashboard: React.FC = () => {
 
                                     <p className="text-muted" style={{ marginBottom: '1.5rem' }}>{post.description}</p>
 
-                                    {post.type === 'doubt' && currentUser.role === 'mentor' && (
+                                    {post.type === 'doubt' && (
                                         <button
                                             onClick={() => handleOfferHelp(post.id)}
                                             className="btn btn-primary"
@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
                                             Offer Help <ArrowRight size={16} />
                                         </button>
                                     )}
-                                    {post.type === 'offer' && currentUser.role === 'learner' && (
+                                    {post.type === 'offer' && (
                                         <button
                                             onClick={() => handleOfferHelp(post.id)} // for simplicity, learner requesting
                                             className="btn btn-secondary"

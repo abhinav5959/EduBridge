@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'learner' | 'mentor';
+  role: 'user' | 'learner' | 'mentor';
   subjects: string[];
   rating?: number;
   profilePic?: string;

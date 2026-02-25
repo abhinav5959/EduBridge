@@ -13,7 +13,6 @@ const Auth: React.FC = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [collegeId, setCollegeId] = useState('');
-    const [role, setRole] = useState<'learner' | 'mentor'>('learner');
     const [subjectInput, setSubjectInput] = useState('');
     const [googleProfilePic, setGoogleProfilePic] = useState<string | undefined>(undefined);
 
@@ -75,11 +74,11 @@ const Auth: React.FC = () => {
             register({
                 name,
                 email,
-                role,
+                role: 'user', // Default role since everyone is a mentor/learner now
                 subjects,
                 collegeId,
                 profilePic: googleProfilePic,
-                rating: role === 'mentor' ? 5.0 : undefined
+                rating: 5.0 // Default rating for everyone since they can all mentor
             });
             navigate('/dashboard');
         }
@@ -154,42 +153,16 @@ const Auth: React.FC = () => {
                     )}
 
                     {!isLogin && (
-                        <>
-                            <div className="input-group">
-                                <label>I want to...</label>
-                                <div className="flex gap-4" style={{ marginTop: '0.5rem' }}>
-                                    <label className="flex items-center gap-2" style={{ cursor: 'pointer', flex: 1, padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', background: role === 'learner' ? 'rgba(99, 102, 241, 0.2)' : 'transparent', transition: 'var(--transition-fast)' }}>
-                                        <input
-                                            type="radio"
-                                            checked={role === 'learner'}
-                                            onChange={() => setRole('learner')}
-                                            style={{ accentColor: 'var(--color-primary)' }}
-                                        />
-                                        Learn (Post doubts)
-                                    </label>
-                                    <label className="flex items-center gap-2" style={{ cursor: 'pointer', flex: 1, padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', background: role === 'mentor' ? 'rgba(99, 102, 241, 0.2)' : 'transparent', transition: 'var(--transition-fast)' }}>
-                                        <input
-                                            type="radio"
-                                            checked={role === 'mentor'}
-                                            onChange={() => setRole('mentor')}
-                                            style={{ accentColor: 'var(--color-primary)' }}
-                                        />
-                                        Mentor (Help others)
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="input-group">
-                                <label>Subjects (Comma separated)</label>
-                                <input
-                                    type="text"
-                                    className="input-field"
-                                    placeholder="e.g. Calculus, Physics, Python"
-                                    value={subjectInput}
-                                    onChange={e => setSubjectInput(e.target.value)}
-                                />
-                            </div>
-                        </>
+                        <div className="input-group">
+                            <label>Subjects you can help with or want to learn (Comma separated)</label>
+                            <input
+                                type="text"
+                                className="input-field"
+                                placeholder="e.g. Calculus, Physics, Python"
+                                value={subjectInput}
+                                onChange={e => setSubjectInput(e.target.value)}
+                            />
+                        </div>
                     )}
 
                     <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '1rem' }}>
