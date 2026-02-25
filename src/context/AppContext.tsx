@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../utils/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { db, auth } from '../utils/firebase';
 import type { User, Post, Match } from '../types';
 
 interface AppContextType {
@@ -8,9 +9,9 @@ interface AppContextType {
     users: User[];
     posts: Post[];
     matches: Match[];
-    login: (email: string) => boolean;
-    register: (user: Omit<User, 'id'>) => void;
-    logout: () => void;
+    login: (email: string, password?: string) => Promise<boolean>;
+    register: (user: Omit<User, 'id'>, password?: string) => Promise<void>;
+    logout: () => Promise<void>;
     createPost: (post: Omit<Post, 'id' | 'createdAt' | 'status'>) => void;
     createMatch: (postId: string, mentorId: string) => void;
     acceptMatch: (matchId: string) => void;
@@ -65,27 +66,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     }, [currentUser, users]);
 
-    const login = (email: string) => {
+    const login = async (email: string, password?: string) => {
         const user = users.find(u => u.email === email);
         if (user) {
-            setCurrentUser(user);
-            return true;
+            if (password) {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    setCurrentUser(user);
+                    return true;
+                } catch (error) {
+                    console.error("Login error", error);
+                    return false; // Authentication failed
+                }
+            } else {
+                // This branch allows for Google login or legacy passwordless logins to still work
+                setCurrentUser(user);
+                return true;
+            }
         }
         return false;
     };
 
-    const register = async (userData: Omit<User, 'id'>) => {
-        const newUser: User = { ...userData, id: Date.now().toString() };
-        setCurrentUser(newUser); // Set optimistically
+    const register = async (userData: Omit<User, 'id'>, password?: string) => {
+        let userId = Date.now().toString();
+
+        if (password) {
+            // Let Firebase Auth handle the secure creation and assign a secure UID
+            const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
+            userId = userCredential.user.uid;
+        }
+
+        const newUser: User = { ...userData, id: userId };
         try {
             await setDoc(doc(db, 'users', newUser.id), newUser);
+            setCurrentUser(newUser); // Set after successful DB write
         } catch (error) {
             console.error("Error registering user: ", error);
+            throw error;
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
         setCurrentUser(null);
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Error signing out: ", error);
+        }
     };
 
     const loginWithGoogle = (email: string, _name: string, picture: string) => {

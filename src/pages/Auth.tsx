@@ -16,6 +16,8 @@ const Auth: React.FC = () => {
     const [collegeName, setCollegeName] = useState('');
     const [userType, setUserType] = useState<'teacher' | 'student'>('student');
     const [subjectInput, setSubjectInput] = useState('');
+    const [password, setPassword] = useState('');
+    const [isGoogleSignIn, setIsGoogleSignIn] = useState(false);
     const [googleProfilePic, setGoogleProfilePic] = useState<string | undefined>(undefined);
 
     const [error, setError] = useState('');
@@ -37,6 +39,7 @@ const Auth: React.FC = () => {
                 setName(decoded.name);
                 setGoogleProfilePic(decoded.picture);
                 setIsLogin(false);
+                setIsGoogleSignIn(true);
                 setError('Please complete your profile to finish signing up with Google.');
             } else {
                 navigate('/dashboard');
@@ -47,20 +50,24 @@ const Auth: React.FC = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
         if (isLogin) {
-            const success = login(email);
-            if (!success) {
-                setError('Invalid email. Please try again or register.');
-            } else {
-                navigate('/dashboard');
+            try {
+                const success = await login(email, password);
+                if (!success) {
+                    setError('Invalid email or password. Please try again or register.');
+                } else {
+                    navigate('/dashboard');
+                }
+            } catch (err: any) {
+                setError(err.message || 'Login failed.');
             }
         } else {
-            if (!name || !email || !collegeId || !collegeName || (!isLogin && !subjectInput)) {
-                setError('Please fill in all fields including your College ID and College Name.');
+            if (!name || !email || !collegeId || !collegeName || (!isLogin && !subjectInput) || (!isGoogleSignIn && !password)) {
+                setError('Please fill in all required fields including your password.');
                 return;
             }
 
@@ -73,18 +80,28 @@ const Auth: React.FC = () => {
             // Registration ID format validation removed as per request
 
             const subjects = subjectInput.split(',').map(s => s.trim()).filter(s => s);
-            register({
-                name,
-                email,
-                role: 'user', // Default role since everyone is a mentor/learner now
-                userType,
-                subjects,
-                collegeId,
-                collegeName,
-                profilePic: googleProfilePic,
-                rating: 5.0 // Default rating for everyone since they can all mentor
-            });
-            navigate('/dashboard');
+            try {
+                await register({
+                    name,
+                    email,
+                    role: 'user', // Default role since everyone is a mentor/learner now
+                    userType,
+                    subjects,
+                    collegeId,
+                    collegeName,
+                    profilePic: googleProfilePic,
+                    rating: 5.0 // Default rating for everyone since they can all mentor
+                }, isGoogleSignIn ? undefined : password);
+                navigate('/dashboard');
+            } catch (err: any) {
+                if (err.code === 'auth/email-already-in-use') {
+                    setError('Email is already in use. Please sign in.');
+                } else if (err.code === 'auth/weak-password') {
+                    setError('Password is too weak. Please use at least 6 characters.');
+                } else {
+                    setError(err.message || 'Registration failed.');
+                }
+            }
         }
     };
 
@@ -141,6 +158,20 @@ const Auth: React.FC = () => {
                             required
                         />
                     </div>
+
+                    {!isGoogleSignIn && (
+                        <div className="input-group">
+                            <label>Password</label>
+                            <input
+                                type="password"
+                                className="input-field"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                    )}
 
                     {!isLogin && (
                         <>
