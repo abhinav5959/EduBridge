@@ -111,6 +111,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             status: 'open'
         };
         setPosts([newPost, ...posts]);
+
+        // Notify others if this is a doubt
+        if (postData.type === 'doubt' && currentUser) {
+            try {
+                const domain = currentUser.email.split('@')[1];
+                if (domain) {
+                    const peerEmails = users
+                        .filter(u => u.id !== currentUser.id && u.email.endsWith(`@${domain}`))
+                        .map(u => u.email);
+
+                    if (peerEmails.length > 0) {
+                        fetch('/api/send-email', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                to: peerEmails,
+                                subject: `EduBridge: Someone at your college needs help with ${newPost.subject}!`,
+                                html: `
+                                    <div style="font-family: sans-serif; padding: 20px; color: #333;">
+                                        <h2 style="color: #6366f1;">New Doubt Posted!</h2>
+                                        <p><strong>${currentUser.name}</strong> from your college just posted a doubt and is looking for a mentor.</p>
+                                        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                            <h3 style="margin-top: 0; color: #111;">${newPost.title}</h3>
+                                            <span style="display: inline-block; background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 10px;">SUBJECT: ${newPost.subject.toUpperCase()}</span>
+                                            <p style="margin-bottom: 0;">${newPost.description}</p>
+                                        </div>
+                                        <p>If you know the answer, log into EduBridge and click "Offer Help" on their post.</p>
+                                        <a href="https://edu-bridge-sage-three.vercel.app" style="display: inline-block; background: #6366f1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 10px;">Open EduBridge</a>
+                                    </div>
+                                `
+                            })
+                        }).catch(err => console.error('Failed to trigger email API', err));
+                    }
+                }
+            } catch (error) {
+                console.error('Error triggering email notification:', error);
+            }
+        }
     };
 
     const createMatch = (postId: string, mentorId: string) => {
