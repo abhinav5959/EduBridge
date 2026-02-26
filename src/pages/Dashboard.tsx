@@ -14,8 +14,22 @@ const Dashboard: React.FC = () => {
         return null;
     }
 
-    // Pending matches for this user (if learner, someone offered help)
-    const myPendingMatches = matches.filter(m => m.learnerId === currentUser.id && m.status === 'pending');
+    // Pending matches for this user (they need to accept/reject)
+    // If someone offered help on their doubt -> they are the learnerId
+    // If someone requested a session on their offer -> they are the mentorId
+    const myPendingMatches = matches.filter(m => {
+        if (m.status !== 'pending') return false;
+
+        const post = posts.find(p => p.id === m.postId);
+        if (!post) return false;
+
+        if (post.type === 'doubt') {
+            return m.learnerId === currentUser.id; // They posted the doubt, someone else is offering help
+        } else {
+            return m.mentorId === currentUser.id; // They posted the offer, someone else is requesting a session
+        }
+    });
+
     // Active accepted matches for chat
     const myAcceptedMatches = matches.filter(m => (m.learnerId === currentUser.id || m.mentorId === currentUser.id) && m.status === 'accepted');
 
@@ -56,12 +70,12 @@ const Dashboard: React.FC = () => {
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h3 style={{ fontSize: '1.1rem', marginBottom: '0.2rem' }}>
-                                                {mentor?.name} offered help
-                                                {mentor?.userType === 'teacher' && <span className="badge badge-primary" style={{ marginLeft: '8px', fontSize: '0.7rem' }}>TEACHER</span>}
+                                                {post?.type === 'doubt' ? `${mentor?.name} offered help` : `${users.find(u => u.id === match.learnerId)?.name} requested a session`}
+                                                {post?.type === 'doubt' && mentor?.userType === 'teacher' && <span className="badge badge-primary" style={{ marginLeft: '8px', fontSize: '0.7rem' }}>TEACHER</span>}
                                             </h3>
-                                            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>Regarding your doubt: "{post?.title}"</p>
+                                            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>Regarding your post: "{post?.title}"</p>
 
-                                            {mentor?.rating && (
+                                            {post?.type === 'doubt' && mentor?.rating && (
                                                 <div className="badge badge-warning" style={{ marginBottom: '1rem' }}>
                                                     ★ {mentor.rating} Mentor Rating
                                                 </div>

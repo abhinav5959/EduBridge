@@ -222,8 +222,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const newMatch: Match = {
             id: `m${Date.now()}`,
             postId,
-            learnerId: post.authorId,
-            mentorId,
+            learnerId: post.type === 'doubt' ? post.authorId : mentorId,
+            mentorId: post.type === 'doubt' ? mentorId : post.authorId,
             status: 'pending'
         };
 
