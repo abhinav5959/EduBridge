@@ -182,44 +182,43 @@ const Dashboard: React.FC = () => {
                                     );
                                 })}
                             </ul>
+                        )}
+                        <button
+                            onClick={() => setActiveChatMatchId('test_match_id')}
+                            className="btn btn-primary"
+                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '1rem', width: '100%', justifyContent: 'center' }}
+                        >
+                            <MessageCircle size={14} /> Open Demo Chat Window
+                        </button>
+                    </div>
+
+                    <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem' }}>My Posts</h2>
+                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                        {myPosts.length === 0 ? (
+                            <p className="text-muted" style={{ fontSize: '0.9rem' }}>You haven't created any posts yet.</p>
+                        ) : (
+                            <ul style={{ listStyle: 'none' }}>
+                                {myPosts.map(post => (
+                                    <li key={post.id} style={{ marginBottom: '1rem' }}>
+                                        <div style={{ fontWeight: 500, fontSize: '0.95rem' }}>{post.title}</div>
+                                        <div className="flex justify-between items-center" style={{ marginTop: '0.2rem' }}>
+                                            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', fontSize: '0.7rem' }}>{post.status.toUpperCase()}</span>
+                                            <span className="text-muted" style={{ fontSize: '0.75rem' }}>{new Date(post.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                    </li>
+                                ))}
                             </ul>
                         )}
-                    <button
-                        onClick={() => setActiveChatMatchId('test_match_id')}
-                        className="btn btn-primary"
-                        style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '1rem', width: '100%', justifyContent: 'center' }}
-                    >
-                        <MessageCircle size={14} /> Open Demo Chat Window
-                    </button>
-                </div>
-
-                <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem' }}>My Posts</h2>
-                <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    {myPosts.length === 0 ? (
-                        <p className="text-muted" style={{ fontSize: '0.9rem' }}>You haven't created any posts yet.</p>
-                    ) : (
-                        <ul style={{ listStyle: 'none' }}>
-                            {myPosts.map(post => (
-                                <li key={post.id} style={{ marginBottom: '1rem' }}>
-                                    <div style={{ fontWeight: 500, fontSize: '0.95rem' }}>{post.title}</div>
-                                    <div className="flex justify-between items-center" style={{ marginTop: '0.2rem' }}>
-                                        <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', fontSize: '0.7rem' }}>{post.status.toUpperCase()}</span>
-                                        <span className="text-muted" style={{ fontSize: '0.75rem' }}>{new Date(post.createdAt).toLocaleDateString()}</span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    </div>
                 </div>
             </div>
-        </div>
 
-            {/* Chat Window Overlay */ }
-    {
-        activeChatMatchId && (
-            <ChatWindow matchId={activeChatMatchId} onClose={() => setActiveChatMatchId(null)} />
-        )
-    }
+            {/* Chat Window Overlay */}
+            {
+                activeChatMatchId && (
+                    <ChatWindow matchId={activeChatMatchId} onClose={() => setActiveChatMatchId(null)} />
+                )
+            }
         </div >
     );
 };
